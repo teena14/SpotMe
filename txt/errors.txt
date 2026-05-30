@@ -1,0 +1,7 @@
+error-0C240000:error:0A000438:SSL routines:ssl3_read_bytes:tlsv1 alert internal error:c:\ws\deps\openssl\openssl\ssl\record\rec_layer_s3.c:1605:SSL alert number 80
+why- Your app tried to create a secure HTTPS connection, but the server rejected it due to some SSL/TLS configuration issue. maybe you forgot to connec compass or configure ip in atlas
+how it was resolved - added ip to whitelist and connected compass again
+
+error - Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+why - The backend has a rate limiting security feature (express-rate-limit) that was set way too strictly for the authentication routes
+how it was resolved - updated the backend configuration to be much more development-friendly, increasing the limit to 500 requests per 15 minutes while in development mode

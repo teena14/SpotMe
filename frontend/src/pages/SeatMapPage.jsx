@@ -162,7 +162,7 @@ const SeatMapPage = () => {
   const queryClient = useQueryClient();
 
   // Fetch layouts
-  const { data: layoutsData } = useQuery({
+  const { data: layoutsData, isLoading: layoutsLoading, error: layoutsError } = useQuery({
     queryKey: ['layouts'],
     queryFn: async () => {
       const { data } = await layoutAPI.getAll();
@@ -190,6 +190,8 @@ const SeatMapPage = () => {
     },
   });
 
+  const [bookingError, setBookingError] = useState('');
+
   // Create booking
   const createBookingMutation = useMutation({
     mutationFn: (bookingData) => bookingAPI.create(bookingData),
@@ -197,9 +199,10 @@ const SeatMapPage = () => {
       queryClient.invalidateQueries(['bookings-date']);
       queryClient.invalidateQueries(['bookings']);
       setSelectedSeat(null);
+      setBookingError('');
     },
     onError: (error) => {
-      alert(error.response?.data?.error?.message || 'Failed to create booking');
+      setBookingError(error.response?.data?.error?.message || 'Failed to create booking');
     },
   });
 
@@ -224,15 +227,24 @@ const SeatMapPage = () => {
     }
   };
 
-  // ── Compute canvas dimensions from seat coordinates ──────────────────────
+  // ── Normalize seat coordinates to compact grid indices ─────────────────────
+  // Seats may store raw pixel values or any integers; we sort unique X/Y values
+  // and map each seat to a compact 0-based grid position.
   const seats = seatsData || [];
-  const maxX = seats.length > 0 ? Math.max(...seats.map((s) => s.xCoordinate)) : 0;
-  const maxY = seats.length > 0 ? Math.max(...seats.map((s) => s.yCoordinate)) : 0;
 
-  // Treat coordinates as grid cells (1-based), scale to pixel positions
+  const uniqueXs = [...new Set(seats.map((s) => s.xCoordinate))].sort((a, b) => a - b);
+  const uniqueYs = [...new Set(seats.map((s) => s.yCoordinate))].sort((a, b) => a - b);
+
+  const xIndex = Object.fromEntries(uniqueXs.map((v, i) => [v, i]));
+  const yIndex = Object.fromEntries(uniqueYs.map((v, i) => [v, i]));
+
+  const gridCols = uniqueXs.length || 1;
+  const gridRows = uniqueYs.length || 1;
+
+  // Treat coordinates as grid cells, scale to pixel positions
   const CELL = SEAT_SIZE + 12; // seat size + gap
-  const canvasW = (maxX + 1) * CELL + CANVAS_PADDING * 2;
-  const canvasH = (maxY + 1) * CELL + CANVAS_PADDING * 2;
+  const canvasW = gridCols * CELL + CANVAS_PADDING * 2;
+  const canvasH = gridRows * CELL + CANVAS_PADDING * 2;
 
   const totalSeats = seats.length;
   const bookedCount = seats.filter((s) => isSeatBooked(s._id)).length;
@@ -267,11 +279,22 @@ const SeatMapPage = () => {
                 onChange={(e) => { setSelectedLayout(e.target.value); setSelectedSeat(null); }}
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 bg-white text-gray-800 text-sm"
               >
-                {layoutsData?.map((layout) => (
-                  <option key={layout._id} value={layout._id}>
-                    {layout.name} — Floor {layout.floor}
-                  </option>
-                ))}
+                {layoutsError ? (
+                  <option value="" disabled>Error: {layoutsError.message}</option>
+                ) : !layoutsData ? (
+                  <option value="" disabled>Loading layouts...</option>
+                ) : layoutsData.length === 0 ? (
+                  <option value="" disabled>No layouts found — ask your admin to create one</option>
+                ) : (
+                  <>
+                    {!selectedLayout && <option value="" disabled>Select a floor...</option>}
+                    {layoutsData.map((layout) => (
+                      <option key={layout._id} value={layout._id}>
+                        {layout.name} — Floor {layout.floor}
+                      </option>
+                    ))}
+                  </>
+                )}
               </select>
             </div>
 
@@ -388,8 +411,8 @@ const SeatMapPage = () => {
                 const style = getSeatStyle(seat, booked, selected);
                 const TypeIcon = TYPE_ICONS[seat.type] || DeskIcon;
 
-                const px = CANVAS_PADDING + seat.xCoordinate * CELL;
-                const py = CANVAS_PADDING + seat.yCoordinate * CELL;
+                const px = CANVAS_PADDING + (xIndex[seat.xCoordinate] ?? 0) * CELL;
+                const py = CANVAS_PADDING + (yIndex[seat.yCoordinate] ?? 0) * CELL;
 
                 return (
                   <button
@@ -552,7 +575,7 @@ const SeatMapPage = () => {
 
               <div className="flex items-center gap-3 flex-shrink-0">
                 <button
-                  onClick={() => setSelectedSeat(null)}
+                  onClick={() => { setSelectedSeat(null); setBookingError(''); }}
                   className="flex items-center gap-2 px-5 py-2.5 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors text-sm font-medium"
                 >
                   <XIcon size={14} />
@@ -568,6 +591,9 @@ const SeatMapPage = () => {
                 </button>
               </div>
             </div>
+            {bookingError && (
+              <div className="mt-2 text-sm text-red-600 font-medium text-right">{bookingError}</div>
+            )}
           </div>
         </div>
       )}

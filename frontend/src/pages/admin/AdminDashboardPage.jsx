@@ -110,7 +110,8 @@ const AdminDashboardPage = () => {
     queryKey: ['admin-users-all'],
     queryFn: async () => {
       const { data } = await adminAPI.getAllUsers();
-      return data.data;
+      // API returns { success, data: [...users] }
+      return Array.isArray(data.data) ? data.data : (data.data?.users ?? []);
     },
   });
 
@@ -118,7 +119,8 @@ const AdminDashboardPage = () => {
     queryKey: ['admin-all-bookings'],
     queryFn: async () => {
       const { data } = await adminAPI.getAllBookings();
-      return data.data;
+      // API returns { success, data: [...bookings] }
+      return Array.isArray(data.data) ? data.data : (data.data?.bookings ?? []);
     },
   });
 
@@ -138,12 +140,12 @@ const AdminDashboardPage = () => {
     },
   });
 
-  const totalUsers = usersData?.users?.length ?? usersData?.length ?? null;
+  const totalUsers = usersData?.length ?? null;
   const totalLayouts = layoutsData?.length ?? null;
   const bookingsToday = todayBookings?.length ?? null;
-  const totalBookings = allBookings?.bookings?.length ?? allBookings?.length ?? null;
+  const totalBookings = allBookings?.length ?? null;
 
-  const recentBookings = (allBookings?.bookings ?? allBookings ?? []).slice(0, 8);
+  const recentBookings = (allBookings ?? []).slice(0, 8);
 
   return (
     <div className="min-h-screen bg-gray-50">

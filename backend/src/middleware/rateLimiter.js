@@ -15,10 +15,10 @@ export const globalLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Auth endpoints rate limiter (stricter)
+// Auth endpoints rate limiter (stricter but dev-friendly)
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
+  max: process.env.NODE_ENV === 'development' ? 500 : 50,
   message: {
     success: false,
     error: {

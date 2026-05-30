@@ -96,15 +96,16 @@ const UserManagementPage = () => {
   const [sortDir, setSortDir] = useState('asc');
   const [actionLoading, setActionLoading] = useState({});
 
-  const { data: usersResponse, isLoading } = useQuery({
+  const { data: usersData, isLoading } = useQuery({
     queryKey: ['admin-users-all'],
     queryFn: async () => {
       const { data } = await adminAPI.getAllUsers();
-      return data.data;
+      // API returns { success, data: [...users] }
+      return Array.isArray(data.data) ? data.data : (data.data?.users ?? []);
     },
   });
 
-  const users = usersResponse?.users ?? usersResponse ?? [];
+  const users = usersData ?? [];
 
   const blockMut = useMutation({
     mutationFn: (id) => adminAPI.blockUser(id),

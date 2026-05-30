@@ -101,44 +101,55 @@ const Navbar = () => {
 
             {/* Nav Links */}
             <div className="hidden md:flex items-center gap-1">
-              <NavLink
-                to="/"
-                exact
-                icon={<GridIcon size={15} color="currentColor" />}
-                label="Dashboard"
-              />
-              <NavLink
-                to="/seat-map"
-                icon={<MapIcon size={15} color="currentColor" />}
-                label="Seat Map"
-              />
-              <NavLink
-                to="/my-bookings"
-                icon={<CalendarIcon size={15} color="currentColor" />}
-                label="My Bookings"
-              />
-              <NavLink
-                to="/profile"
-                icon={<UserIcon size={15} color="currentColor" />}
-                label="Profile"
-              />
-              {isAdmin && (
-                <NavLink
-                  to="/admin"
-                  icon={<ShieldIcon size={15} color="currentColor" />}
-                  label="Admin"
-                />
+              {!isAdmin ? (
+                <>
+                  <NavLink
+                    to="/"
+                    exact
+                    icon={<GridIcon size={15} color="currentColor" />}
+                    label="Dashboard"
+                  />
+                  <NavLink
+                    to="/seat-map"
+                    icon={<MapIcon size={15} color="currentColor" />}
+                    label="Seat Map"
+                  />
+                  <NavLink
+                    to="/my-bookings"
+                    icon={<CalendarIcon size={15} color="currentColor" />}
+                    label="My Bookings"
+                  />
+                </>
+              ) : (
+                <>
+                  <NavLink
+                    to="/admin"
+                    exact
+                    icon={<ShieldIcon size={15} color="currentColor" />}
+                    label="Admin Dashboard"
+                  />
+                  <NavLink
+                    to="/admin/users"
+                    icon={<UserIcon size={15} color="currentColor" />}
+                    label="Users"
+                  />
+                  <NavLink
+                    to="/admin/layouts"
+                    icon={<MapIcon size={15} color="currentColor" />}
+                    label="Layouts"
+                  />
+                </>
               )}
             </div>
           </div>
 
           {/* Right: user + logout */}
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2.5">
+            <Link to="/profile" className="hidden sm:flex items-center gap-2.5 hover:bg-gray-50 p-1.5 rounded-xl transition-colors">
               <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold">
                 {initials}
               </div>
-              <div className="text-sm leading-tight">
+              <div className="text-sm leading-tight text-left">
                 <p className="font-semibold text-gray-900">
                   {user?.firstName ? `${user.firstName} ${user.lastName || ''}` : user?.email}
                 </p>
@@ -146,7 +157,7 @@ const Navbar = () => {
                   <p className="text-xs text-primary-500 font-medium">Admin</p>
                 )}
               </div>
-            </div>
+            </Link>
 
             <button
               onClick={handleLogout}
