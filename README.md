@@ -20,11 +20,12 @@ A full-stack MERN application for managing office seat bookings in hybrid work e
 - JWT for authentication
 - Bcrypt for password hashing
 
-**Frontend:** (Coming soon)
-- React.js 18+
+**Frontend:**
+- React.js 18+ with Vite
 - Tailwind CSS
-- React Router
-- Axios + React Query
+- React Router v6
+- Axios + TanStack React Query v5
+- date-fns
 
 ## Getting Started
 
@@ -66,6 +67,19 @@ npm run dev
 ```
 
 The server will start on `http://localhost:5000`
+
+6. **Install frontend dependencies**
+```bash
+cd ../frontend
+npm install
+```
+
+7. **Start the frontend dev server**
+```bash
+npm run dev
+```
+
+The frontend will start on `http://localhost:5173`
 
 ### API Endpoints
 
@@ -169,6 +183,27 @@ backend/
 ├── uploads/             # File uploads directory
 ├── .env                 # Environment variables
 └── package.json
+
+frontend/
+├── src/
+│   ├── components/      # Shared components (Navbar, ProtectedRoute)
+│   ├── contexts/        # React context (AuthContext)
+│   ├── pages/           # Page components
+│   │   ├── LoginPage.jsx
+│   │   ├── RegisterPage.jsx
+│   │   ├── DashboardPage.jsx
+│   │   ├── SeatMapPage.jsx
+│   │   ├── MyBookingsPage.jsx
+│   │   ├── ProfilePage.jsx
+│   │   └── admin/       # Admin-only pages
+│   │       ├── AdminDashboardPage.jsx
+│   │       ├── UserManagementPage.jsx
+│   │       └── LayoutManagementPage.jsx
+│   ├── services/        # Axios API client
+│   └── App.jsx          # Routes & providers
+├── index.html
+├── vite.config.js
+└── package.json
 ```
 
 ## Development
@@ -176,6 +211,10 @@ backend/
 The backend uses nodemon for hot-reloading during development.
 
 ```bash
+# Backend (from /backend)
+npm run dev
+
+# Frontend (from /frontend)
 npm run dev
 ```
 
