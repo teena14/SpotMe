@@ -228,6 +228,11 @@ const SeatMapPage = () => {
     }
   }, [layoutsData, selectedLayout]);
 
+  // Clear booking error on input change
+  useEffect(() => {
+    if (bookingError) setBookingError('');
+  }, [selectedDate, startTime, endTime, selectedSeat]);
+
   const isSeatBooked = (seatId) => {
     return bookingsData?.some((b) => {
       const isMatch = b.seatId?._id === seatId || b.seatId === seatId;

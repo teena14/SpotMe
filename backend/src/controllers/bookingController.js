@@ -93,7 +93,7 @@ export const createBooking = async (req, res, next) => {
         const floorInfo = booking.layoutId?.floor ? ` (Floor ${booking.layoutId.floor})` : '';
         const layoutName = booking.layoutId?.name || '';
         
-        await sendEmail({
+        sendEmail({
           to: user.email,
           subject: 'SpotMe Booking Confirmation',
           html: `
@@ -109,7 +109,7 @@ export const createBooking = async (req, res, next) => {
             <p>Remember to check in within 1 hour of your start time using the QR code in the SpotMe app.</p>
             <p>Best regards,<br>SpotMe Team</p>
           `
-        });
+        }).catch(emailErr => console.error('Error sending confirmation email asynchronously:', emailErr));
       }
     } catch (emailError) {
       console.error('Error sending confirmation email:', emailError);
