@@ -1,10 +1,11 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 // Request interceptor to add auth token
@@ -26,7 +27,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expired, try to refresh
       try {
-        const { data } = await axios.post('/api/auth/refresh');
+        const { data } = await axios.post('/api/auth/refresh', {}, { withCredentials: true });
         localStorage.setItem('accessToken', data.data.accessToken);
         // Retry original request
         error.config.headers.Authorization = `Bearer ${data.data.accessToken}`;
@@ -35,6 +36,7 @@ api.interceptors.response.use(
         // Refresh failed, logout user
         localStorage.removeItem('accessToken');
         window.location.href = '/login';
+        return Promise.reject(refreshError);
       }
     }
     return Promise.reject(error);
