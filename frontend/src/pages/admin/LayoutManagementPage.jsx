@@ -83,57 +83,57 @@ const LayoutModal = ({ initial, onSave, onClose, loading }) => {
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md transition-colors duration-200">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-gray-800">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
             {initial ? 'Edit Layout' : 'New Layout'}
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-            <XIcon size={16} color="#6b7280" />
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <XIcon size={16} color="currentColor" className="text-gray-500 dark:text-gray-400" />
           </button>
         </div>
 
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Layout Name *</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Layout Name *</label>
             <input
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm"
+              className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-500 text-sm"
               value={form.name} onChange={(e) => set('name', e.target.value)}
               placeholder="e.g. Open Plan A"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Floor *</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Floor *</label>
               <input
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm"
+                className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-500 text-sm"
                 value={form.floor} onChange={(e) => set('floor', e.target.value)}
                 placeholder="e.g. 3"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Capacity *</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Capacity *</label>
               <input
                 type="number" min="1"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm"
+                className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-500 text-sm"
                 value={form.capacity} onChange={(e) => set('capacity', Number(e.target.value))}
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
             <textarea
               rows={2}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm resize-none"
+              className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-500 text-sm resize-none"
               value={form.description} onChange={(e) => set('description', e.target.value)}
               placeholder="Optional description..."
             />
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
-          <button onClick={onClose} className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 dark:border-gray-800">
+          <button onClick={onClose} className="px-5 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             Cancel
           </button>
           <button
@@ -167,29 +167,29 @@ const SeatModal = ({ initial, gridX, gridY, onSave, onClose, loading }) => {
       : [...form.amenities, a]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-sm transition-colors duration-200">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-gray-800">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
             {initial ? 'Edit Seat' : `Add Seat at (${gridX}, ${gridY})`}
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-            <XIcon size={16} color="#6b7280" />
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <XIcon size={16} color="currentColor" className="text-gray-500 dark:text-gray-400" />
           </button>
         </div>
 
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Seat Number *</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Seat Number *</label>
             <input
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm"
+              className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-500 text-sm"
               value={form.seatNumber} onChange={(e) => set('seatNumber', e.target.value)}
               placeholder="e.g. A1"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Type *</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Type *</label>
             <div className="grid grid-cols-3 gap-2">
               {SEAT_TYPES.map((t) => (
                 <button
@@ -197,8 +197,8 @@ const SeatModal = ({ initial, gridX, gridY, onSave, onClose, loading }) => {
                   onClick={() => set('type', t)}
                   className={`py-2 px-1 rounded-xl border text-xs font-semibold transition-all ${
                     form.type === t
-                      ? 'bg-primary-600 border-primary-700 text-white'
-                      : 'border-gray-200 text-gray-600 hover:border-primary-300'
+                      ? 'bg-primary-600 border-primary-700 dark:border-primary-500 text-white'
+                      : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-primary-300 dark:hover:border-primary-500'
                   }`}
                 >
                   {TYPE_LABELS[t]}
@@ -208,7 +208,7 @@ const SeatModal = ({ initial, gridX, gridY, onSave, onClose, loading }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Amenities</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Amenities</label>
             <div className="grid grid-cols-2 gap-2">
               {AMENITIES_LIST.map((a) => (
                 <button
@@ -216,12 +216,12 @@ const SeatModal = ({ initial, gridX, gridY, onSave, onClose, loading }) => {
                   onClick={() => toggleAmenity(a)}
                   className={`flex items-center gap-2 py-2 px-3 rounded-xl border text-xs font-medium transition-all text-left ${
                     form.amenities.includes(a)
-                      ? 'bg-primary-50 border-primary-400 text-primary-700'
-                      : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                      ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-400 text-primary-700 dark:text-primary-400'
+                      : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   <span className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
-                    form.amenities.includes(a) ? 'bg-primary-600 border-primary-600' : 'border-gray-300'
+                    form.amenities.includes(a) ? 'bg-primary-600 border-primary-600' : 'border-gray-300 dark:border-gray-600'
                   }`}>
                     {form.amenities.includes(a) && <CheckIcon size={10} color="#fff" />}
                   </span>
@@ -232,8 +232,8 @@ const SeatModal = ({ initial, gridX, gridY, onSave, onClose, loading }) => {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
-          <button onClick={onClose} className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 dark:border-gray-800">
+          <button onClick={onClose} className="px-5 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             Cancel
           </button>
           <button
@@ -459,15 +459,15 @@ const LayoutManagementPage = () => {
   const seats = seatsData || [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <Navbar />
 
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Floor Layouts</h1>
-            <p className="text-gray-400 text-sm mt-1">Manage floors and seat positions visually</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Floor Layouts</h1>
+            <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Manage floors and seat positions visually</p>
           </div>
           <button
             onClick={() => setLayoutModal({ mode: 'create' })}
@@ -482,35 +482,35 @@ const LayoutManagementPage = () => {
 
           {/* ── Left: Layout List ─────────────────────────────────────────── */}
           <div className="w-64 flex-shrink-0">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="px-4 py-3 border-b border-gray-100">
-                <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Layouts</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">
+              <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                <h2 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Layouts</h2>
               </div>
 
               {layoutsLoading ? (
-                <div className="p-6 text-center text-sm text-gray-400">Loading...</div>
+                <div className="p-6 text-center text-sm text-gray-400 dark:text-gray-500">Loading...</div>
               ) : layoutsData?.length === 0 ? (
-                <div className="p-6 text-center text-sm text-gray-400">No layouts yet.<br />Create one to get started.</div>
+                <div className="p-6 text-center text-sm text-gray-400 dark:text-gray-500">No layouts yet.<br />Create one to get started.</div>
               ) : (
-                <div className="divide-y divide-gray-50">
+                <div className="divide-y divide-gray-50 dark:divide-gray-800/50">
                   {layoutsData.map((layout) => (
                     <button
                       key={layout._id}
                       onClick={() => setSelectedLayoutId(layout._id)}
                       className={`w-full text-left px-4 py-3 transition-colors flex items-start gap-3 ${
                         selectedLayoutId === layout._id
-                          ? 'bg-primary-50 border-r-2 border-primary-500'
-                          : 'hover:bg-gray-50'
+                          ? 'bg-primary-50 dark:bg-primary-900/30 border-r-2 border-primary-500'
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <LayersIcon size={15} color="#9333ea" />
+                      <div className="w-8 h-8 rounded-lg bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <LayersIcon size={15} color="currentColor" className="text-primary-600 dark:text-primary-400" />
                       </div>
                       <div className="min-w-0">
-                        <p className={`text-sm font-semibold truncate ${selectedLayoutId === layout._id ? 'text-primary-700' : 'text-gray-800'}`}>
+                        <p className={`text-sm font-semibold truncate ${selectedLayoutId === layout._id ? 'text-primary-700 dark:text-primary-400' : 'text-gray-800 dark:text-gray-200'}`}>
                           {layout.name}
                         </p>
-                        <p className="text-xs text-gray-400">Floor {layout.floor} · Cap. {layout.capacity}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">Floor {layout.floor} · Cap. {layout.capacity}</p>
                       </div>
                     </button>
                   ))}
@@ -522,40 +522,40 @@ const LayoutManagementPage = () => {
           {/* ── Right: Canvas + Controls ──────────────────────────────────── */}
           <div className="flex-1 min-w-0">
             {!selectedLayout ? (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-24 text-center">
-                <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center mb-4">
-                  <GridIcon size={28} color="#c084fc" />
+              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center justify-center py-24 text-center transition-colors duration-200">
+                <div className="w-16 h-16 rounded-2xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center mb-4">
+                  <GridIcon size={28} color="currentColor" className="text-primary-400" />
                 </div>
-                <p className="text-gray-500 font-medium">Select or create a layout</p>
-                <p className="text-gray-400 text-sm mt-1">Then click any cell on the canvas to add seats</p>
+                <p className="text-gray-500 dark:text-gray-400 font-medium">Select or create a layout</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Then click any cell on the canvas to add seats</p>
               </div>
             ) : (
               <>
                 {/* Layout header */}
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-4 flex items-center justify-between">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-5 mb-4 flex items-center justify-between transition-colors duration-200">
                   <div>
-                    <h2 className="text-lg font-bold text-gray-900">{selectedLayout.name}</h2>
-                    <p className="text-sm text-gray-400">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">{selectedLayout.name}</h2>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">
                       Floor {selectedLayout.floor} · Capacity {selectedLayout.capacity}
                       {selectedLayout.description && ` · ${selectedLayout.description}`}
                     </p>
-                    <p className="text-xs text-primary-600 font-semibold mt-1">
+                    <p className="text-xs text-primary-600 dark:text-primary-400 font-semibold mt-1">
                       {seats.length} seats placed
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setLayoutModal({ mode: 'edit', data: selectedLayout })}
-                      className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       <EditIcon size={14} />
                       Edit
                     </button>
                     <button
                       onClick={() => setDeleteConfirm({ type: 'layout', id: selectedLayoutId })}
-                      className="flex items-center gap-1.5 px-3 py-2 border border-red-200 rounded-xl text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-2 border border-red-200 dark:border-red-800/50 rounded-xl text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                     >
-                      <TrashIcon size={14} color="#dc2626" />
+                      <TrashIcon size={14} color="currentColor" />
                       Delete
                     </button>
                   </div>
@@ -578,9 +578,9 @@ const LayoutManagementPage = () => {
                 </div>
 
                 {/* Canvas */}
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 overflow-auto">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 overflow-auto transition-colors duration-200">
                   {seatsLoading ? (
-                    <div className="flex items-center justify-center h-48 text-sm text-gray-400">Loading seats...</div>
+                    <div className="flex items-center justify-center h-48 text-sm text-gray-400 dark:text-gray-500">Loading seats...</div>
                   ) : (
                     <FloorCanvas
                       seats={seats}
@@ -592,11 +592,11 @@ const LayoutManagementPage = () => {
 
                 {/* Seats list */}
                 {seats.length > 0 && (
-                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm mt-4 overflow-hidden">
-                    <div className="px-5 py-3 border-b border-gray-100">
-                      <h3 className="text-sm font-bold text-gray-700">Seat List</h3>
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm mt-4 overflow-hidden transition-colors duration-200">
+                    <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+                      <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200">Seat List</h3>
                     </div>
-                    <div className="divide-y divide-gray-50">
+                    <div className="divide-y divide-gray-50 dark:divide-gray-800/50">
                       {seats.map((seat) => (
                         <div key={seat._id} className="flex items-center justify-between px-5 py-3">
                           <div className="flex items-center gap-3">
@@ -607,8 +607,8 @@ const LayoutManagementPage = () => {
                               {seat.seatNumber}
                             </span>
                             <div>
-                              <p className="text-sm font-medium text-gray-800">{TYPE_LABELS[seat.type]}</p>
-                              <p className="text-xs text-gray-400">
+                              <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{TYPE_LABELS[seat.type]}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500">
                                 ({seat.xCoordinate}, {seat.yCoordinate})
                                 {seat.amenities?.length > 0 && ` · ${seat.amenities.join(', ')}`}
                               </p>
@@ -617,15 +617,15 @@ const LayoutManagementPage = () => {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => setSeatModal({ mode: 'edit', seat, gridX: seat.xCoordinate, gridY: seat.yCoordinate })}
-                              className="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                              className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                             >
-                              <EditIcon size={13} color="#6b7280" />
+                              <EditIcon size={13} color="currentColor" className="text-gray-500 dark:text-gray-400" />
                             </button>
                             <button
                               onClick={() => setDeleteConfirm({ type: 'seat', id: seat._id })}
-                              className="p-1.5 rounded-lg border border-red-100 hover:bg-red-50 transition-colors"
+                              className="p-1.5 rounded-lg border border-red-100 dark:border-red-800/50 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                             >
-                              <TrashIcon size={13} color="#ef4444" />
+                              <TrashIcon size={13} color="currentColor" className="text-red-500 dark:text-red-400" />
                             </button>
                           </div>
                         </div>
@@ -663,13 +663,13 @@ const LayoutManagementPage = () => {
 
       {/* ── Delete Confirm ── */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center">
-            <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-              <TrashIcon size={22} color="#ef4444" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center transition-colors duration-200">
+            <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4">
+              <TrashIcon size={22} color="currentColor" className="text-red-500 dark:text-red-400" />
             </div>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">Confirm Delete</h2>
-            <p className="text-gray-500 text-sm mb-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Confirm Delete</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
               {deleteConfirm.type === 'layout'
                 ? 'This will permanently delete the layout and all its seats and bookings.'
                 : 'This will permanently delete the seat and all its bookings.'}
@@ -677,7 +677,7 @@ const LayoutManagementPage = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 Cancel
               </button>

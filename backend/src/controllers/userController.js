@@ -42,7 +42,7 @@ export const getUserById = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, email } = req.body;
+    const { firstName, lastName, email, department, phone, settings } = req.body;
     
     // Check if user is updating their own profile or is admin
     if (req.user.userId.toString() !== id && req.user.role !== 'admin') {
@@ -59,6 +59,15 @@ export const updateUser = async (req, res, next) => {
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
     if (email) user.email = email;
+    if (department !== undefined) user.department = department;
+    if (phone !== undefined) user.phone = phone;
+    
+    if (settings) {
+      if (!user.settings) user.settings = {};
+      if (settings.emailNotifs !== undefined) user.settings.emailNotifs = settings.emailNotifs;
+      if (settings.pushNotifs !== undefined) user.settings.pushNotifs = settings.pushNotifs;
+      if (settings.darkMode !== undefined) user.settings.darkMode = settings.darkMode;
+    }
     
     await user.save();
     

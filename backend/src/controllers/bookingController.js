@@ -2,13 +2,23 @@ import Booking from '../models/Booking.js';
 import Seat from '../models/Seat.js';
 import Layout from '../models/Layout.js';
 import Notification from '../models/Notification.js';
+import User from '../models/User.js';
 import { AppError } from '../middleware/errorHandler.js';
+import { sendEmail } from '../utils/email.js';
 
 // Create booking
 export const createBooking = async (req, res, next) => {
   try {
-    const { seatId, date } = req.body;
+    const { seatId, date, startTime, endTime } = req.body;
     const userId = req.user.userId;
+    
+    if (!startTime || !endTime) {
+      throw new AppError('Start time and End time are required', 400, 'MISSING_TIME');
+    }
+    
+    if (startTime >= endTime) {
+      throw new AppError('Start time must be before End time', 400, 'INVALID_TIME_RANGE');
+    }
     
     // Validate date is in the future
     const bookingDate = new Date(date);
@@ -26,26 +36,30 @@ export const createBooking = async (req, res, next) => {
       throw new AppError('Seat not found or inactive', 404, 'RESOURCE_NOT_FOUND');
     }
     
-    // Check if user already has a booking for this date
+    // Check if user already has an overlapping booking for this date
     const existingUserBooking = await Booking.findOne({
       userId,
       date: bookingDate,
-      status: 'active'
+      status: { $in: ['active', 'checked-in'] },
+      startTime: { $lt: endTime },
+      endTime: { $gt: startTime }
     });
     
     if (existingUserBooking) {
-      throw new AppError('You already have a booking for this date', 409, 'USER_ALREADY_BOOKED');
+      throw new AppError('You already have an overlapping booking for this time', 409, 'USER_ALREADY_BOOKED');
     }
     
-    // Check if seat is already booked for this date
+    // Check if seat is already booked overlapping this time
     const existingSeatBooking = await Booking.findOne({
       seatId,
       date: bookingDate,
-      status: 'active'
+      status: { $in: ['active', 'checked-in'] },
+      startTime: { $lt: endTime },
+      endTime: { $gt: startTime }
     });
     
     if (existingSeatBooking) {
-      throw new AppError('This seat is already booked for the selected date', 409, 'BOOKING_CONFLICT');
+      throw new AppError('This seat is already booked for the selected time', 409, 'BOOKING_CONFLICT');
     }
     
     // Create booking
@@ -54,6 +68,8 @@ export const createBooking = async (req, res, next) => {
       seatId,
       layoutId: seat.layoutId,
       date: bookingDate,
+      startTime,
+      endTime,
       status: 'active'
     });
     
@@ -69,6 +85,35 @@ export const createBooking = async (req, res, next) => {
       message: `Your booking for seat ${seat.seatNumber} on ${bookingDate.toDateString()} has been confirmed.`,
       type: 'booking-confirmed'
     });
+
+    // Send Email
+    try {
+      const user = await User.findById(userId);
+      if (user && user.email) {
+        const floorInfo = booking.layoutId?.floor ? ` (Floor ${booking.layoutId.floor})` : '';
+        const layoutName = booking.layoutId?.name || '';
+        
+        await sendEmail({
+          to: user.email,
+          subject: 'SpotMe Booking Confirmation',
+          html: `
+            <h2>Booking Confirmed!</h2>
+            <p>Hi ${user.firstName || ''},</p>
+            <p>Your workspace booking has been successfully confirmed.</p>
+            <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>Date:</strong> ${bookingDate.toDateString()}</p>
+              <p><strong>Time:</strong> ${startTime} - ${endTime}</p>
+              <p><strong>Seat:</strong> ${seat.seatNumber}</p>
+              <p><strong>Location:</strong> ${layoutName}${floorInfo}</p>
+            </div>
+            <p>Remember to check in within 1 hour of your start time using the QR code in the SpotMe app.</p>
+            <p>Best regards,<br>SpotMe Team</p>
+          `
+        });
+      }
+    } catch (emailError) {
+      console.error('Error sending confirmation email:', emailError);
+    }
     
     res.status(201).json({
       success: true,
@@ -277,7 +322,7 @@ export const getBookingsByDate = async (req, res, next) => {
     
     const bookings = await Booking.find({
       date: queryDate,
-      status: 'active'
+      status: { $in: ['active', 'checked-in'] }
     }).populate('seatId layoutId userId');
     
     res.json({

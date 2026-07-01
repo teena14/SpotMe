@@ -63,7 +63,7 @@ const ShieldIcon = ({ size = 16, color = 'currentColor' }) => (
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 
 const StatCard = ({ icon, label, value, sub, accent }) => (
-  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-start gap-4">
+  <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 flex items-start gap-4 transition-colors duration-200">
     <div
       className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
       style={{ backgroundColor: `${accent}18` }}
@@ -71,11 +71,11 @@ const StatCard = ({ icon, label, value, sub, accent }) => (
       {icon}
     </div>
     <div>
-      <p className="text-sm text-gray-500 font-medium">{label}</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{label}</p>
       <p className="text-3xl font-bold mt-0.5" style={{ color: accent }}>
-        {value ?? <span className="text-gray-300 text-lg animate-pulse">—</span>}
+        {value ?? <span className="text-gray-300 dark:text-gray-600 text-lg animate-pulse">—</span>}
       </p>
-      {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+      {sub && <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{sub}</p>}
     </div>
   </div>
 );
@@ -85,7 +85,7 @@ const StatCard = ({ icon, label, value, sub, accent }) => (
 const ActionCard = ({ to, icon, title, desc, accent }) => (
   <Link
     to={to}
-    className="group bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center gap-4 hover:border-primary-300 hover:shadow-md transition-all duration-200"
+    className="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 flex items-center gap-4 hover:border-primary-300 dark:hover:border-primary-500 hover:shadow-md transition-all duration-200"
   >
     <div
       className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors"
@@ -94,8 +94,8 @@ const ActionCard = ({ to, icon, title, desc, accent }) => (
       {icon}
     </div>
     <div className="flex-1 min-w-0">
-      <h3 className="font-semibold text-gray-900 group-hover:text-primary-700 transition-colors">{title}</h3>
-      <p className="text-sm text-gray-400 mt-0.5 truncate">{desc}</p>
+      <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">{title}</h3>
+      <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5 truncate">{desc}</p>
     </div>
     <ArrowRightIcon size={16} color="#c084fc" />
   </Link>
@@ -148,15 +148,15 @@ const AdminDashboardPage = () => {
   const recentBookings = (allBookings ?? []).slice(0, 8);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
             {format(new Date(), "EEEE, MMMM d, yyyy")} — Overview of workspace activity
           </p>
         </div>
@@ -195,7 +195,7 @@ const AdminDashboardPage = () => {
 
         {/* Quick Actions */}
         <div className="mb-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <ActionCard
               to="/admin/users"
@@ -222,54 +222,54 @@ const AdminDashboardPage = () => {
         </div>
 
         {/* Recent Bookings Table */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-base font-bold text-gray-900">Recent Bookings</h2>
-            <span className="text-xs text-gray-400">{recentBookings.length} entries</span>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <h2 className="text-base font-bold text-gray-900 dark:text-white">Recent Bookings</h2>
+            <span className="text-xs text-gray-400 dark:text-gray-500">{recentBookings.length} entries</span>
           </div>
 
           {recentBookings.length === 0 ? (
             <div className="py-16 text-center">
               <CalendarIcon size={32} color="#e9d5ff" />
-              <p className="text-gray-400 text-sm mt-3">No bookings yet</p>
+              <p className="text-gray-400 dark:text-gray-500 text-sm mt-3">No bookings yet</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50">
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Employee</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Seat</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Layout</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                  <tr className="bg-gray-50 dark:bg-gray-900/50">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Employee</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Seat</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Layout</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
                   {recentBookings.map((booking) => (
-                    <tr key={booking._id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={booking._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-primary-100 flex items-center justify-center text-xs font-bold text-primary-700 flex-shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-xs font-bold text-primary-700 dark:text-primary-400 flex-shrink-0">
                             {(booking.userId?.firstName?.[0] || booking.userId?.email?.[0] || '?').toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-800">
+                            <p className="font-medium text-gray-800 dark:text-gray-200">
                               {booking.userId?.firstName
                                 ? `${booking.userId.firstName} ${booking.userId.lastName || ''}`
                                 : booking.userId?.email || 'Unknown'}
                             </p>
-                            <p className="text-gray-400 text-xs">{booking.userId?.email}</p>
+                            <p className="text-gray-400 dark:text-gray-500 text-xs">{booking.userId?.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-gray-700 font-medium">
+                      <td className="px-6 py-4 text-gray-700 dark:text-gray-300 font-medium">
                         {booking.seatId?.seatNumber || '—'}
                       </td>
-                      <td className="px-6 py-4 text-gray-500">
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
                         {booking.layoutId?.name || '—'}
                       </td>
-                      <td className="px-6 py-4 text-gray-500">
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
                         {booking.date
                           ? format(new Date(booking.date), 'MMM d, yyyy')
                           : '—'}
@@ -278,10 +278,10 @@ const AdminDashboardPage = () => {
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                             booking.status === 'active'
-                              ? 'bg-green-100 text-green-700'
+                              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                               : booking.status === 'cancelled'
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-gray-100 text-gray-600'
+                              ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                           }`}
                         >
                           {booking.status || 'active'}

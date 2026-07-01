@@ -77,10 +77,10 @@ const Avatar = ({ user }) => {
 const RoleBadge = ({ role }) => (
   <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
     role === 'admin'
-      ? 'bg-primary-100 text-primary-700 border border-primary-200'
-      : 'bg-gray-100 text-gray-600 border border-gray-200'
+      ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 border border-primary-200 dark:border-primary-800'
+      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-600'
   }`}>
-    {role === 'admin' ? <ShieldIcon size={11} color="#9333ea" /> : <UserIcon size={11} color="#6b7280" />}
+    {role === 'admin' ? <ShieldIcon size={11} color="currentColor" /> : <UserIcon size={11} color="currentColor" />}
     {role}
   </span>
 );
@@ -162,21 +162,21 @@ const UserManagementPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">User Management</h1>
+          <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">
             {users.length} registered users
           </p>
         </div>
 
         {/* Filters bar */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-5">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 mb-5 transition-colors duration-200">
           <div className="flex flex-wrap items-center gap-3">
             {/* Search */}
             <div className="relative flex-1 min-w-48">
@@ -187,14 +187,14 @@ const UserManagementPage = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name or email..."
-                className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="w-full pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-500"
               />
             </div>
 
             {/* Role filter */}
-            <div className="flex items-center gap-1.5 text-xs text-gray-500">
-              <FilterIcon size={13} color="#9ca3af" />
-              <span className="font-semibold text-gray-400">Role:</span>
+            <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <FilterIcon size={13} color="currentColor" />
+              <span className="font-semibold text-gray-400 dark:text-gray-500">Role:</span>
               {['all', 'employee', 'admin'].map((r) => (
                 <button
                   key={r}
@@ -202,7 +202,7 @@ const UserManagementPage = () => {
                   className={`px-3 py-1.5 rounded-lg font-semibold transition-colors capitalize ${
                     roleFilter === r
                       ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   {r}
@@ -211,8 +211,8 @@ const UserManagementPage = () => {
             </div>
 
             {/* Status filter */}
-            <div className="flex items-center gap-1.5 text-xs text-gray-500">
-              <span className="font-semibold text-gray-400">Status:</span>
+            <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <span className="font-semibold text-gray-400 dark:text-gray-500">Status:</span>
               {['all', 'active', 'blocked'].map((s) => (
                 <button
                   key={s}
@@ -220,7 +220,7 @@ const UserManagementPage = () => {
                   className={`px-3 py-1.5 rounded-lg font-semibold transition-colors capitalize ${
                     statusFilter === s
                       ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   {s}
@@ -231,26 +231,26 @@ const UserManagementPage = () => {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">
           {isLoading ? (
-            <div className="flex items-center justify-center py-24 text-sm text-gray-400">
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-100 border-t-primary-600 mr-3" />
+            <div className="flex items-center justify-center py-24 text-sm text-gray-400 dark:text-gray-500">
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-100 dark:border-gray-700 border-t-primary-600 mr-3" />
               Loading users...
             </div>
           ) : filtered.length === 0 ? (
             <div className="py-20 text-center">
               <UserIcon size={32} color="#e9d5ff" />
-              <p className="text-gray-400 text-sm mt-3">No users match your filters</p>
+              <p className="text-gray-400 dark:text-gray-500 text-sm mt-3">No users match your filters</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-100">
+                  <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700">
                     <th className="text-left px-5 py-3">
                       <button
                         onClick={() => toggleSort('firstName')}
-                        className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-primary-600 transition-colors"
+                        className="flex items-center gap-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-primary-600 transition-colors"
                       >
                         User <SortIcon field="firstName" />
                       </button>
@@ -258,51 +258,51 @@ const UserManagementPage = () => {
                     <th className="text-left px-5 py-3">
                       <button
                         onClick={() => toggleSort('email')}
-                        className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-primary-600 transition-colors"
+                        className="flex items-center gap-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-primary-600 transition-colors"
                       >
                         Email <SortIcon field="email" />
                       </button>
                     </th>
                     <th className="text-left px-5 py-3">
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</span>
+                      <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</span>
                     </th>
                     <th className="text-left px-5 py-3">
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</span>
+                      <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</span>
                     </th>
                     <th className="text-left px-5 py-3">
                       <button
                         onClick={() => toggleSort('createdAt')}
-                        className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-primary-600 transition-colors"
+                        className="flex items-center gap-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-primary-600 transition-colors"
                       >
                         Joined <SortIcon field="createdAt" />
                       </button>
                     </th>
                     <th className="text-right px-5 py-3">
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</span>
+                      <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</span>
                     </th>
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
                   {filtered.map((user) => (
-                    <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       {/* User */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
                           <Avatar user={user} />
                           <div>
-                            <p className="font-semibold text-gray-900">
+                            <p className="font-semibold text-gray-900 dark:text-white">
                               {user.firstName || ''} {user.lastName || ''}
                             </p>
                             {user.department && (
-                              <p className="text-xs text-gray-400">{user.department}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500">{user.department}</p>
                             )}
                           </div>
                         </div>
                       </td>
 
                       {/* Email */}
-                      <td className="px-5 py-4 text-gray-500">
+                      <td className="px-5 py-4 text-gray-500 dark:text-gray-400">
                         {user.email}
                       </td>
 
@@ -314,20 +314,20 @@ const UserManagementPage = () => {
                       {/* Status */}
                       <td className="px-5 py-4">
                         {user.isBlocked ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">
-                            <BanIcon size={11} color="#dc2626" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800">
+                            <BanIcon size={11} color="currentColor" />
                             Blocked
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
-                            <CheckCircleIcon size={11} color="#16a34a" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
+                            <CheckCircleIcon size={11} color="currentColor" />
                             Active
                           </span>
                         )}
                       </td>
 
                       {/* Joined */}
-                      <td className="px-5 py-4 text-gray-400 text-xs">
+                      <td className="px-5 py-4 text-gray-400 dark:text-gray-500 text-xs">
                         {user.createdAt ? format(new Date(user.createdAt), 'MMM d, yyyy') : '—'}
                       </td>
 
@@ -338,18 +338,18 @@ const UserManagementPage = () => {
                             <button
                               onClick={() => unblockMut.mutate(user._id)}
                               disabled={!!actionLoading[user._id]}
-                              className="flex items-center gap-1.5 px-3 py-1.5 border border-green-200 rounded-lg text-xs font-semibold text-green-700 hover:bg-green-50 disabled:opacity-50 transition-colors"
+                              className="flex items-center gap-1.5 px-3 py-1.5 border border-green-200 dark:border-green-800/50 rounded-lg text-xs font-semibold text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 disabled:opacity-50 transition-colors"
                             >
-                              <CheckCircleIcon size={12} color="#16a34a" />
+                              <CheckCircleIcon size={12} color="currentColor" />
                               {actionLoading[user._id] ? '...' : 'Unblock'}
                             </button>
                           ) : (
                             <button
                               onClick={() => blockMut.mutate(user._id)}
                               disabled={!!actionLoading[user._id]}
-                              className="flex items-center gap-1.5 px-3 py-1.5 border border-red-200 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+                              className="flex items-center gap-1.5 px-3 py-1.5 border border-red-200 dark:border-red-800/50 rounded-lg text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-colors"
                             >
-                              <BanIcon size={12} color="#dc2626" />
+                              <BanIcon size={12} color="currentColor" />
                               {actionLoading[user._id] ? '...' : 'Block'}
                             </button>
                           )}
@@ -364,7 +364,7 @@ const UserManagementPage = () => {
 
           {/* Footer summary */}
           {filtered.length > 0 && (
-            <div className="px-5 py-3 border-t border-gray-50 text-xs text-gray-400 flex items-center justify-between">
+            <div className="px-5 py-3 border-t border-gray-50 dark:border-gray-800 text-xs text-gray-400 dark:text-gray-500 flex items-center justify-between">
               <span>Showing {filtered.length} of {users.length} users</span>
               <span>
                 {users.filter((u) => !u.isBlocked).length} active ·{' '}

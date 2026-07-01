@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { generateAccessToken, generateRefreshToken } from '../config/jwt.js';
 
 const userSchema = new mongoose.Schema({
@@ -35,10 +37,46 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  department: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  phone: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  settings: {
+    emailNotifs: {
+      type: Boolean,
+      default: true
+    },
+    pushNotifs: {
+      type: Boolean,
+      default: false
+    },
+    darkMode: {
+      type: Boolean,
+      default: false
+    }
+  },
+  employeeId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  qrToken: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   isBlocked: {
     type: Boolean,
     default: false
   },
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
   createdAt: {
     type: Date,
     default: Date.now
@@ -53,6 +91,22 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ isBlocked: 1 });
+userSchema.index({ employeeId: 1 });
+userSchema.index({ qrToken: 1 });
+
+// Generate employeeId and qrToken before first save if not already set
+userSchema.pre('save', function(next) {
+  if (this.isNew) {
+    if (!this.qrToken) {
+      this.qrToken = uuidv4();
+    }
+    if (!this.employeeId) {
+      // Short unique ID: EMP- + first 8 chars of qrToken
+      this.employeeId = 'EMP-' + this.qrToken.replace(/-/g, '').substring(0, 8).toUpperCase();
+    }
+  }
+  next();
+});
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
@@ -86,6 +140,23 @@ userSchema.methods.generateAuthToken = function() {
   const refreshToken = generateRefreshToken(this._id);
   
   return { accessToken, refreshToken };
+};
+
+// Method to generate password reset token
+userSchema.methods.getResetPasswordToken = function() {
+  // Generate token
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // Hash token and set to resetPasswordToken field
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Set expire to 15 minutes
+  this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+
+  return resetToken;
 };
 
 // Remove password from JSON output

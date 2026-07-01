@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../contexts/AuthContext';
 import { bookingAPI } from '../services/api';
 import { format } from 'date-fns';
 
@@ -22,24 +23,14 @@ const XCircleIcon = ({ size = 14, color = 'currentColor' }) => (
   </svg>
 );
 
-const LayersIcon = ({ size = 14, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="12 2 2 7 12 12 22 7 12 2" />
-    <polyline points="2 17 12 22 22 17" />
-    <polyline points="2 12 12 17 22 12" />
-  </svg>
-);
 
-const FilterIcon = ({ size = 14, color = 'currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-  </svg>
-);
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const MyBookingsPage = () => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
+  const isDark = user?.settings?.darkMode;
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ['my-bookings'],
@@ -75,9 +66,9 @@ const MyBookingsPage = () => {
 
   const StatusBadge = ({ status }) => {
     const configs = {
-      active: 'bg-green-100 text-green-700 border-green-200',
-      cancelled: 'bg-red-100 text-red-700 border-red-200',
-      completed: 'bg-gray-100 text-gray-600 border-gray-200',
+      active: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800',
+      cancelled: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800',
+      completed: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-600',
     };
     return (
       <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${configs[status] || configs.completed}`}>
@@ -89,21 +80,18 @@ const MyBookingsPage = () => {
   const BookingCard = ({ booking }) => {
     const isUpcoming = booking.status === 'active' && new Date(booking.date) >= today;
     return (
-      <div className={`flex items-center justify-between p-4 border rounded-xl transition-all duration-150 ${
-        isUpcoming ? 'border-gray-100 hover:border-primary-200 hover:bg-primary-50/20' : 'border-gray-100 opacity-70'
-      }`}>
+      <div className={`flex items-center justify-between p-4 border rounded-xl transition-all duration-150 ${isUpcoming ? 'border-gray-100 dark:border-gray-700 hover:border-primary-200 dark:hover:border-primary-500 hover:bg-primary-50/20 dark:hover:bg-primary-900/20' : 'border-gray-100 dark:border-gray-700 opacity-70'
+        }`}>
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-            isUpcoming ? 'bg-primary-100' : 'bg-gray-100'
-          }`}>
-            <CalendarIcon size={16} color={isUpcoming ? '#9333ea' : '#9ca3af'} />
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isUpcoming ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
+            }`}>
+            <CalendarIcon size={16} color="currentColor" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 text-sm">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
               Seat {booking.seatId?.seatNumber || '—'}
             </h3>
-            <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
-              <LayersIcon size={11} color="#9ca3af" />
+            <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 mt-0.5">
               {booking.layoutId?.name || 'Unknown layout'}
               {booking.layoutId?.floor && ` — Floor ${booking.layoutId.floor}`}
             </div>
@@ -111,21 +99,21 @@ const MyBookingsPage = () => {
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <p className="text-sm font-semibold text-gray-800">
+            <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               {booking.date ? format(new Date(booking.date), 'MMM d, yyyy') : '—'}
             </p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-400 dark:text-gray-500">
               {booking.date ? format(new Date(booking.date), 'EEEE') : ''}
             </p>
           </div>
-          <StatusBadge status={booking.status} />
+
           {isUpcoming && (
             <button
               onClick={() => handleCancel(booking._id)}
               disabled={cancelMutation.isPending}
-              className="flex items-center gap-1 px-3 py-1.5 border border-red-200 text-red-600 rounded-lg text-xs font-semibold hover:bg-red-50 disabled:opacity-50 transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-lg text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-colors"
             >
-              <XCircleIcon size={12} color="#dc2626" />
+              <XCircleIcon size={12} color="currentColor" />
               Cancel
             </button>
           )}
@@ -135,37 +123,37 @@ const MyBookingsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <Navbar />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-            <p className="text-gray-400 text-sm mt-1">{bookings?.length || 0} total bookings</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Bookings</h1>
+            <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">{bookings?.length || 0} total bookings</p>
           </div>
         </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-24">
-            <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-100 border-t-primary-600" />
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-280 dark:border-gray-700 border-t-primary-600 dark:border-t-primary-500" />
           </div>
         ) : !bookings?.length ? (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center mb-4">
-              <CalendarIcon size={28} color="#c084fc" />
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-280 dark:border-gray-700 shadow-sm flex flex-col items-center justify-center py-20 text-center transition-colors duration-200">
+            <div className="w-16 h-16 rounded-2xl bg-primary-50 dark:bg-gray-700 flex items-center justify-center mb-4">
+              <CalendarIcon size={28} color={isDark ? '#c084fc' : '#c084fc'} />
             </div>
-            <p className="text-gray-500 font-semibold mb-1">No bookings yet</p>
-            <p className="text-gray-400 text-sm">Head to the Seat Map to book your first seat.</p>
+            <p className="text-gray-500 dark:text-gray-300 font-semibold mb-1">No bookings yet</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm">Head to the Seat Map to book your first seat.</p>
           </div>
         ) : (
           <div className="space-y-6">
             {/* Upcoming */}
             {upcoming.length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
-                  <CalendarIcon size={15} color="#9333ea" />
-                  <h2 className="font-bold text-gray-900 text-sm">Upcoming ({upcoming.length})</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-280 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">
+                <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
+
+                  <h2 className="font-bold text-gray-900 dark:text-white text-sm">Upcoming ({upcoming.length})</h2>
                 </div>
                 <div className="p-4 space-y-3">
                   {upcoming.map((b) => <BookingCard key={b._id} booking={b} />)}
@@ -175,10 +163,10 @@ const MyBookingsPage = () => {
 
             {/* Past / Cancelled */}
             {past.length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
-                  <FilterIcon size={14} color="#9ca3af" />
-                  <h2 className="font-bold text-gray-700 text-sm">Past & Cancelled ({past.length})</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-280 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">
+                <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2 text-gray-400 dark:text-gray-500">
+
+                  <h2 className="font-bold text-gray-700 dark:text-gray-300 text-sm">Past & Cancelled ({past.length})</h2>
                 </div>
                 <div className="p-4 space-y-3">
                   {past.map((b) => <BookingCard key={b._id} booking={b} />)}

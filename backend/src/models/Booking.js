@@ -20,10 +20,22 @@ const bookingSchema = new mongoose.Schema({
     type: Date,
     required: [true, 'Booking date is required']
   },
+  startTime: {
+    type: String,
+    required: [true, 'Start time is required']
+  },
+  endTime: {
+    type: String,
+    required: [true, 'End time is required']
+  },
   status: {
     type: String,
-    enum: ['active', 'cancelled', 'completed', 'no-show'],
+    enum: ['active', 'checked-in', 'cancelled', 'completed', 'no-show'],
     default: 'active'
+  },
+  checkedInAt: {
+    type: Date,
+    default: null
   },
   createdAt: {
     type: Date,
@@ -36,7 +48,7 @@ const bookingSchema = new mongoose.Schema({
 });
 
 // Compound indexes for conflict detection
-bookingSchema.index({ userId: 1, date: 1 }, { unique: true });
+bookingSchema.index({ userId: 1, date: 1 });
 bookingSchema.index({ seatId: 1, date: 1, status: 1 });
 bookingSchema.index({ date: 1, status: 1 });
 bookingSchema.index({ createdAt: 1 });

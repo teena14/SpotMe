@@ -55,12 +55,10 @@ const SunIcon = ({ size = 20, color = 'currentColor' }) => (
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 
 const StatCard = ({ icon, label, value, accent }) => (
-  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-start gap-4">
-    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${accent}18` }}>
-      {icon}
-    </div>
+  <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 flex items-start gap-4 transition-colors duration-200">
+
     <div>
-      <p className="text-sm text-gray-500 font-medium">{label}</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{label}</p>
       <p className="text-3xl font-bold mt-0.5" style={{ color: accent }}>{value}</p>
     </div>
   </div>
@@ -90,41 +88,40 @@ const DashboardPage = () => {
   const firstName = user?.firstName || 'there';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* ── Welcome Header ── */}
         <div className="mb-8">
-          <div className="flex items-center gap-2 text-primary-500 text-sm font-semibold mb-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {greeting}, {firstName}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 text-primary-500 text-sm font-semibold mt-2">
             <SunIcon size={15} color="#9333ea" />
             {format(new Date(), 'EEEE, MMMM d, yyyy')}
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            {greeting}, {firstName}
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">Here's your workspace overview</p>
         </div>
 
         {/* ── Stats Row ── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <StatCard
-            icon={<TrendingIcon size={20} color="#9333ea" />}
+
             label="Upcoming Bookings"
             value={upcomingBookings.length}
-            accent="#9333ea"
+
           />
           <StatCard
-            icon={<CalendarIcon size={20} color="#7c3aed" />}
+
             label="Total Bookings"
             value={bookings?.length || 0}
-            accent="#7c3aed"
+
           />
           <div className="bg-gradient-to-br from-primary-600 to-primary-800 rounded-2xl p-6 flex items-center gap-4 shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
-              <MapIcon size={20} color="#fff" />
-            </div>
+
             <div>
               <p className="text-sm text-primary-200 font-medium">Quick Action</p>
               <Link
@@ -139,33 +136,20 @@ const DashboardPage = () => {
         </div>
 
         {/* ── Upcoming Bookings ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-              <CalendarIcon size={16} color="#9333ea" />
-              Upcoming Bookings
-            </h2>
-            <Link
-              to="/my-bookings"
-              className="text-xs text-primary-600 font-semibold hover:text-primary-700 flex items-center gap-1"
-            >
-              View all
-              <ArrowRightIcon size={12} color="#9333ea" />
-            </Link>
-          </div>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">
 
-          <div className="p-6">
+          <div >
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-100 border-t-primary-600" />
               </div>
             ) : upcomingBookings.length === 0 ? (
-              <div className="text-center py-10">
-                <div className="w-14 h-14 rounded-2xl bg-primary-50 flex items-center justify-center mx-auto mb-3">
+              <div className="text-center py-8">
+                <div className="w-14 h-14 rounded-2xl bg-primary-50 dark:bg-gray-700 flex items-center justify-center mx-auto mb-3">
                   <CalendarIcon size={24} color="#c084fc" />
                 </div>
-                <p className="text-gray-500 font-medium mb-1">No upcoming bookings</p>
-                <p className="text-gray-400 text-sm mb-4">Reserve your workspace for today or any future date.</p>
+                <p className="text-gray-500 dark:text-gray-300 font-medium mb-1">No upcoming bookings</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm mb-4">Reserve your workspace for today or any future date.</p>
                 <Link
                   to="/seat-map"
                   className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors"
@@ -173,37 +157,44 @@ const DashboardPage = () => {
                   <MapIcon size={14} color="#fff" />
                   Browse Seat Map
                 </Link>
+                <Link
+                  to="/my-bookings"
+                  className="text-xs text-primary-600 font-semibold hover:text-primary-700 flex justify-center items-center mt-4"
+                >
+                  View all
+                  <ArrowRightIcon size={12} color="#9333ea" />
+                </Link>
               </div>
             ) : (
               <div className="space-y-3">
                 {upcomingBookings.map((booking) => (
                   <div
                     key={booking._id}
-                    className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-primary-200 hover:bg-primary-50/30 transition-all duration-150"
+                    className="flex items-center justify-between p-4 border border-gray-100 dark:border-gray-700 rounded-xl hover:border-primary-200 dark:hover:border-primary-500 hover:bg-primary-50/30 dark:hover:bg-gray-700/50 transition-all duration-150"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
                         <CalendarIcon size={16} color="#9333ea" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
                           Seat {booking.seatId?.seatNumber}
                         </h3>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {booking.layoutId?.name} {booking.layoutId?.floor ? `— Floor ${booking.layoutId.floor}` : ''}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <p className="text-sm font-semibold text-gray-800">
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
                           {format(new Date(booking.date), 'MMM d')}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-400 dark:text-gray-500">
                           {format(new Date(booking.date), 'EEEE')}
                         </p>
                       </div>
-                      <span className="px-2.5 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                      <span className="px-2.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold rounded-full">
                         Active
                       </span>
                     </div>

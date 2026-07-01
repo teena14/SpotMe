@@ -61,6 +61,8 @@ import layoutRoutes from './routes/layoutRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import checkInRoutes from './routes/checkInRoutes.js';
+import { startNoShowJob } from './utils/noShowJob.js';
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -69,6 +71,10 @@ app.use('/api/layouts', layoutRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/checkin', checkInRoutes);
+
+// Start scheduled jobs
+startNoShowJob();
 
 // 404 handler
 app.use((req, res) => {

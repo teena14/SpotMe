@@ -84,6 +84,13 @@ const CalendarIcon = ({ size = 16, color = 'currentColor' }) => (
   </svg>
 );
 
+const ClockIcon = ({ size = 16, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
 const LayersIcon = ({ size = 16, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="12 2 2 7 12 12 22 7 12 2" />
@@ -125,7 +132,7 @@ const AMENITY_LABELS = {
 const SEAT_SIZE = 52;
 const CANVAS_PADDING = 40;
 
-const getSeatStyle = (seat, isBooked, isSelected) => {
+const getSeatStyle = (seat, isBooked, isSelected, isDark = false) => {
   if (isSelected) {
     return {
       bg: '#9333ea',       // primary-600
@@ -136,17 +143,23 @@ const getSeatStyle = (seat, isBooked, isSelected) => {
   }
   if (isBooked) {
     return {
-      bg: '#e5e7eb',       // gray-200
-      border: '#d1d5db',   // gray-300
-      text: '#9ca3af',     // gray-400
-      icon: '#9ca3af',
+      bg: isDark ? '#374151' : '#e5e7eb',       // gray-700 / gray-200
+      border: isDark ? '#4b5563' : '#d1d5db',   // gray-600 / gray-300
+      text: isDark ? '#9ca3af' : '#9ca3af',     // gray-400
+      icon: isDark ? '#9ca3af' : '#9ca3af',
     };
   }
   // Available — shade by type
   const typeColors = {
-    desk: { bg: '#f3e8ff', border: '#c084fc', text: '#7e22ce', icon: '#9333ea' },
-    'meeting-room': { bg: '#ede9fe', border: '#a78bfa', text: '#5b21b6', icon: '#7c3aed' },
-    'phone-booth': { bg: '#faf5ff', border: '#d8b4fe', text: '#6b21a8', icon: '#9333ea' },
+    desk: isDark 
+      ? { bg: 'rgba(147, 51, 234, 0.2)', border: '#7e22ce', text: '#d8b4fe', icon: '#c084fc' }
+      : { bg: '#f3e8ff', border: '#c084fc', text: '#7e22ce', icon: '#9333ea' },
+    'meeting-room': isDark
+      ? { bg: 'rgba(124, 58, 237, 0.2)', border: '#6d28d9', text: '#c4b5fd', icon: '#a78bfa' }
+      : { bg: '#ede9fe', border: '#a78bfa', text: '#5b21b6', icon: '#7c3aed' },
+    'phone-booth': isDark
+      ? { bg: 'rgba(107, 33, 168, 0.2)', border: '#9333ea', text: '#e9d5ff', icon: '#d8b4fe' }
+      : { bg: '#faf5ff', border: '#d8b4fe', text: '#6b21a8', icon: '#9333ea' },
   };
   return typeColors[seat.type] || typeColors.desk;
 };
@@ -155,6 +168,8 @@ const getSeatStyle = (seat, isBooked, isSelected) => {
 
 const SeatMapPage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startTime, setStartTime] = useState('09:00');
+  const [endTime, setEndTime] = useState('17:00');
   const [selectedLayout, setSelectedLayout] = useState(null);
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [tooltip, setTooltip] = useState(null); // { seat, x, y }
@@ -213,8 +228,15 @@ const SeatMapPage = () => {
     }
   }, [layoutsData, selectedLayout]);
 
-  const isSeatBooked = (seatId) =>
-    bookingsData?.some((b) => b.seatId?._id === seatId || b.seatId === seatId);
+  const isSeatBooked = (seatId) => {
+    return bookingsData?.some((b) => {
+      const isMatch = b.seatId?._id === seatId || b.seatId === seatId;
+      if (!isMatch) return false;
+      if (!b.startTime || !b.endTime) return true; // legacy full day booking
+      // Time overlap: existing starts before new ends AND existing ends after new starts
+      return b.startTime < endTime && b.endTime > startTime;
+    });
+  };
 
   const handleSeatClick = (seat) => {
     if (isSeatBooked(seat._id)) return;
@@ -222,8 +244,17 @@ const SeatMapPage = () => {
   };
 
   const handleBooking = () => {
-    if (selectedSeat && selectedDate) {
-      createBookingMutation.mutate({ seatId: selectedSeat._id, date: selectedDate });
+    if (selectedSeat && selectedDate && startTime && endTime) {
+      if (startTime >= endTime) {
+        setBookingError('Start time must be before End time');
+        return;
+      }
+      createBookingMutation.mutate({
+        seatId: selectedSeat._id,
+        date: selectedDate,
+        startTime,
+        endTime
+      });
     }
   };
 
@@ -253,31 +284,29 @@ const SeatMapPage = () => {
 
   const selectedLayoutData = layoutsData?.find((l) => l._id === selectedLayout);
 
+  const isDark = document.documentElement.classList.contains('dark');
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        {/* ── Header ── */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Seat Map</h1>
-          <p className="text-gray-500 mt-1 text-sm">Select a date and floor, then click an available seat to book it.</p>
-        </div>
+
 
         {/* ── Controls Card ── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-280 dark:border-gray-700 p-6 mb-6 transition-colors duration-200">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Layout select */}
             <div>
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+              <label className="flex items-center gap-2 text-base font-semibold text-gray-700 dark:text-gray-300 mb-2 ml-1">
                 <LayersIcon size={15} color="#9333ea" />
                 Floor / Layout
               </label>
               <select
                 value={selectedLayout || ''}
                 onChange={(e) => { setSelectedLayout(e.target.value); setSelectedSeat(null); }}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 bg-white text-gray-800 text-sm"
+                className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs"
               >
                 {layoutsError ? (
                   <option value="" disabled>Error: {layoutsError.message}</option>
@@ -300,7 +329,7 @@ const SeatMapPage = () => {
 
             {/* Date */}
             <div>
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+              <label className="flex items-center gap-2 text-base font-semibold text-gray-700 dark:text-gray-300 mb-2 ml-1">
                 <CalendarIcon size={15} color="#9333ea" />
                 Date
               </label>
@@ -309,23 +338,51 @@ const SeatMapPage = () => {
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 text-gray-800 text-sm"
+                className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs"
               />
+            </div>
+
+            {/* Time Range */}
+            <div className="flex gap-3">
+              <div className="w-1/2">
+                <label className="flex items-center gap-2 text-base font-semibold text-gray-700 dark:text-gray-300 mb-2 ml-1">
+                  <ClockIcon size={15} color="#9333ea" />
+                  Start
+                </label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm"
+                />
+              </div>
+              <div className="w-1/2">
+                <label className="flex items-center gap-2 text-base font-semibold text-gray-700 dark:text-gray-300 mb-2 ml-1">
+                  <ClockIcon size={15} color="#9333ea" />
+                  End
+                </label>
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs"
+                />
+              </div>
             </div>
           </div>
 
           {/* Occupancy Bar */}
           {totalSeats > 0 && (
-            <div className="mt-5 pt-5 border-t border-gray-100">
+            <div className="mt-5 mx-3 pt-5 ">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-gray-700">
+                <span className="text-xs font-regular text-gray-700 dark:text-gray-300">
                   Floor Occupancy
                 </span>
-                <span className="text-sm text-gray-500">
-                  <span className="font-semibold text-primary-600">{bookedCount}</span> booked · <span className="font-semibold text-gray-700">{availableCount}</span> available
-                </span>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <span className="font-semibold text-primary-600 dark:text-primary-400">{bookedCount}</span> booked · <span className="font-semibold text-gray-700 dark:text-gray-300">{availableCount}</span> available
+                </p>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2.5">
+              <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
                 <div
                   className="h-2.5 rounded-full transition-all duration-500"
                   style={{
@@ -333,47 +390,49 @@ const SeatMapPage = () => {
                     background: occupancyPct > 80
                       ? '#ef4444'
                       : occupancyPct > 50
-                      ? '#f59e0b'
-                      : '#9333ea',
+                        ? '#f59e0b'
+                        : '#9333ea',
                   }}
                 />
               </div>
-              <p className="text-xs text-gray-400 mt-1">{occupancyPct}% occupied</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-3 gap-3">
+                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  {occupancyPct}% occupied
+                </span>
+
+                {/* Legend */}
+                <div className="flex flex-wrap items-center gap-4 sm:gap-5 text-xs text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-primary-100 dark:bg-primary-900/30 border-2 border-primary-400 dark:border-primary-500/50" />
+                    <span>Available Desk</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-violet-100 dark:bg-violet-900/30 border-2 border-violet-400 dark:border-violet-500/50" />
+                    <span>Meeting Room</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-gray-200 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600" />
+                    <span>Booked</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-primary-600 border-2 border-primary-700" />
+                    <span>Selected</span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
-
-          {/* Legend */}
-          <div className="mt-4 flex flex-wrap items-center gap-5 text-xs text-gray-600">
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded-md bg-primary-100 border-2 border-primary-400" />
-              <span>Available Desk</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded-md bg-violet-100 border-2 border-violet-400" />
-              <span>Meeting Room</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded-md bg-gray-200 border-2 border-gray-300" />
-              <span>Booked</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded-md bg-primary-600 border-2 border-primary-700" />
-              <span>Selected</span>
-            </div>
-          </div>
         </div>
 
         {/* ── Seat Map Canvas ── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 overflow-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-280 dark:border-gray-700 p-6 overflow-auto transition-colors duration-200">
           {selectedLayoutData && (
-            <div className="mb-4 flex items-center gap-3">
-              <h2 className="text-lg font-bold text-gray-900">{selectedLayoutData.name}</h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-primary-50 text-primary-700 text-xs font-semibold border border-primary-200">
+            <div className="mb-4 flex items-center justify-center gap-3">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">{selectedLayoutData.name}</h2>
+              <span className="px-2.5 py-0.5 rounded-full bg-primary-50 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 text-xs font-semibold border border-primary-200 dark:border-primary-500/30">
                 Floor {selectedLayoutData.floor}
               </span>
-              {selectedLayoutData.description && (
-                <span className="text-sm text-gray-400">{selectedLayoutData.description}</span>
-              )}
+
             </div>
           )}
 
@@ -394,13 +453,12 @@ const SeatMapPage = () => {
             /* Coordinate-positioned canvas */
             <div
               ref={canvasRef}
-              className="relative select-none"
+              className="relative select-none mx-auto"
               style={{
                 width: canvasW,
                 height: canvasH,
-                minWidth: '100%',
                 backgroundImage:
-                  'radial-gradient(circle, #e9d5ff 1px, transparent 1px)',
+                  `radial-gradient(circle, ${isDark ? '#4c1d95' : '#e9d5ff'} 1.5px, transparent 1.5px)`,
                 backgroundSize: `${CELL}px ${CELL}px`,
                 backgroundPosition: `${CANVAS_PADDING}px ${CANVAS_PADDING}px`,
               }}
@@ -408,7 +466,7 @@ const SeatMapPage = () => {
               {seats.map((seat) => {
                 const booked = isSeatBooked(seat._id);
                 const selected = selectedSeat?._id === seat._id;
-                const style = getSeatStyle(seat, booked, selected);
+                const style = getSeatStyle(seat, booked, selected, isDark);
                 const TypeIcon = TYPE_ICONS[seat.type] || DeskIcon;
 
                 const px = CANVAS_PADDING + (xIndex[seat.xCoordinate] ?? 0) * CELL;
@@ -446,8 +504,8 @@ const SeatMapPage = () => {
                       boxShadow: selected
                         ? '0 0 0 3px rgba(147,51,234,0.35)'
                         : booked
-                        ? 'none'
-                        : '0 1px 4px rgba(0,0,0,0.08)',
+                          ? 'none'
+                          : '0 1px 4px rgba(0,0,0,0.08)',
                       transform: selected ? 'scale(1.08)' : 'scale(1)',
                       opacity: booked ? 0.65 : 1,
                       zIndex: selected ? 10 : 1,
@@ -548,7 +606,7 @@ const SeatMapPage = () => {
 
       {/* ── Booking Confirmation Panel ── */}
       {selectedSeat && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-2xl">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-2xl transition-colors duration-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
@@ -559,13 +617,13 @@ const SeatMapPage = () => {
                   })()}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-gray-900">
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
                     Seat {selectedSeat.seatNumber} — {TYPE_LABELS[selectedSeat.type] || selectedSeat.type}
                   </h3>
-                  <p className="text-sm text-gray-500">
-                    {format(new Date(selectedDate), 'EEEE, MMMM d, yyyy')}
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {format(new Date(selectedDate), 'EEEE, MMMM d, yyyy')} • {startTime} - {endTime}
                     {selectedSeat.amenities?.length > 0 && (
-                      <span className="ml-2 text-gray-400">
+                      <span className="ml-2 text-gray-400 dark:text-gray-500">
                         · {selectedSeat.amenities.map((a) => AMENITY_LABELS[a] || a).join(', ')}
                       </span>
                     )}
@@ -576,7 +634,7 @@ const SeatMapPage = () => {
               <div className="flex items-center gap-3 flex-shrink-0">
                 <button
                   onClick={() => { setSelectedSeat(null); setBookingError(''); }}
-                  className="flex items-center gap-2 px-5 py-2.5 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors text-sm font-medium"
+                  className="flex items-center gap-2 px-5 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium"
                 >
                   <XIcon size={14} />
                   Cancel
@@ -592,7 +650,7 @@ const SeatMapPage = () => {
               </div>
             </div>
             {bookingError && (
-              <div className="mt-2 text-sm text-red-600 font-medium text-right">{bookingError}</div>
+              <div className="mt-2 text-sm text-red-600 dark:text-red-400 font-medium text-right">{bookingError}</div>
             )}
           </div>
         </div>

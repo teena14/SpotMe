@@ -47,8 +47,12 @@ export default api;
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
+  googleLogin: (token) => api.post('/auth/google', { token }),
   logout: () => api.post('/auth/logout'),
   refresh: () => api.post('/auth/refresh'),
+  changePassword: (data) => api.put('/auth/password', data),
+  forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
+  resetPassword: (token, password) => api.put(`/auth/reset-password/${token}`, { password }),
 };
 
 // User API
@@ -107,3 +111,10 @@ export const adminAPI = {
   getAllBookings: (params) => api.get('/admin/bookings', { params }),
   deleteBooking: (id) => api.delete(`/admin/bookings/${id}`),
 };
+
+// Check-In API
+export const checkInAPI = {
+  getMyStatus: () => api.get('/checkin/status'),
+  getTodayCheckIns: () => api.get('/checkin/today'), // admin only
+};
+
