@@ -43,7 +43,8 @@ export const checkInByQR = async (req, res, next) => {
     }
 
     // Find today's active booking for this user
-    const today = new Date();
+    const now = new Date();
+    const today = new Date(now);
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -61,12 +62,37 @@ export const checkInByQR = async (req, res, next) => {
       });
     }
 
-    // Pick the earliest 'active' booking that needs check-in
-    let booking = bookings.find(b => b.status === 'active');
-    
-    // If none are active, they are all checked-in. Pick the latest one.
+    const timeToMinutes = (timeStr) => {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+
+    const currentMinutesTotal = now.getHours() * 60 + now.getMinutes();
+
+    // Find the booking corresponding to the current time (allowing 30 minutes grace period before start)
+    let booking = null;
+    for (const b of bookings) {
+       const startMin = timeToMinutes(b.startTime);
+       const endMin = timeToMinutes(b.endTime);
+       if (currentMinutesTotal >= startMin - 30 && currentMinutesTotal < endMin) {
+           booking = b;
+           break;
+       }
+    }
+
     if (!booking) {
-      booking = bookings[bookings.length - 1];
+       const hasActive = bookings.some(b => b.status === 'active');
+       if (hasActive) {
+          return res.json({
+             status: 'no_booking',
+             message: `You have a booking today, but it is not time for it yet.`
+          });
+       } else {
+          return res.status(404).json({
+            status: 'no_booking',
+            message: `No active booking found for ${name || user.firstName} at this time`
+          });
+       }
     }
 
     // If already checked in, return success (idempotent)
@@ -128,7 +154,8 @@ export const getMyCheckInStatus = async (req, res, next) => {
   try {
     const userId = req.user.userId;
 
-    const today = new Date();
+    const now = new Date();
+    const today = new Date(now);
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -151,7 +178,20 @@ export const getMyCheckInStatus = async (req, res, next) => {
       });
     }
 
-    let booking = bookings.find(b => b.status === 'active');
+    const timeToMinutes = (timeStr) => {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+    
+    const currentMinutesTotal = now.getHours() * 60 + now.getMinutes();
+
+    let booking = bookings.find(b => {
+      const startMin = timeToMinutes(b.startTime);
+      const endMin = timeToMinutes(b.endTime);
+      return currentMinutesTotal >= startMin - 30 && currentMinutesTotal < endMin;
+    });
+
+    if (!booking) booking = bookings.find(b => b.status === 'active');
     if (!booking) booking = bookings[bookings.length - 1];
 
     const checkIn = await CheckIn.findOne({

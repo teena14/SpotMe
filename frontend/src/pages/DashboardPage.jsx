@@ -74,13 +74,34 @@ const DashboardPage = () => {
       const { data } = await bookingAPI.getAll();
       return data.data;
     },
+    refetchInterval: 5000,
   });
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const now = new Date();
+
+  // Helper to check if an active booking is locally expired (1 hour past startTime)
+  const isExpired = (b) => {
+    if (b.status !== 'active') return false;
+    if (new Date(b.date) < today) return true; // past day
+    if (new Date(b.date).getTime() === today.getTime() && b.startTime) {
+      const [hours, minutes] = b.startTime.split(':').map(Number);
+      const startDateTime = new Date(today);
+      startDateTime.setHours(hours, minutes, 0, 0);
+      const deadline = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1 hr
+      return now > deadline;
+    }
+    return false;
+  };
 
   const upcomingBookings = (bookings || []).filter(
-    (b) => new Date(b.date) >= today && b.status === 'active'
+    (b) => new Date(b.date) >= today && b.status === 'active' && !isExpired(b)
+  );
+
+  // Find if there's a checked-in booking for today
+  const todayCheckedInBooking = (bookings || []).find(
+    (b) => new Date(b.date).getTime() === today.getTime() && b.status === 'checked-in'
   );
 
   const hour = new Date().getHours();
@@ -134,6 +155,34 @@ const DashboardPage = () => {
             </div>
           </div>
         </div>
+
+        {/* ── Today's Checked-In Booking ── */}
+        {todayCheckedInBooking && (
+          <div className="mb-8 bg-green-1000 dark:bg-green-200/20 rounded-2xl border border-green-200 dark:border-green-800/50 p-3 px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm transition-colors duration-200">
+            <div className="flex items-center gap-4">
+
+              <div>
+                <h3 className="font-semibold text-green-900 dark:text-green-100 text-lg">
+                  Checked In to Seat {todayCheckedInBooking.seatId?.seatNumber}
+                </h3>
+                <p className="text-xs text-green-700 dark:text-green-300 mt-1 font-medium">
+                  {todayCheckedInBooking.layoutId?.name} {todayCheckedInBooking.layoutId?.floor ? `— Floor ${todayCheckedInBooking.layoutId.floor}` : ''}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-green-700 dark:text-green-400 text-sm font-semibold ">
+                <span className="w-2 h-2 rounded-full bg-green-500 "></span>
+                Active Session
+              </span>
+              {todayCheckedInBooking.checkedInAt && (
+                <p className="text-xs text-green-600 dark:text-green-400 mb-2 mx-2 mt-1 font-medium">
+                  Since {format(new Date(todayCheckedInBooking.checkedInAt), 'h:mm a')}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* ── Upcoming Bookings ── */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">

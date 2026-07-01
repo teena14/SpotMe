@@ -38,6 +38,7 @@ const MyBookingsPage = () => {
       const { data } = await bookingAPI.getAll();
       return data.data;
     },
+    refetchInterval: 5000,
   });
 
   const cancelMutation = useMutation({
@@ -56,12 +57,37 @@ const MyBookingsPage = () => {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const now = new Date();
+
+  // Helper to check if an active booking is locally expired (1 hour past startTime)
+  const isExpired = (b) => {
+    if (b.status !== 'active') return false;
+    if (new Date(b.date) < today) return true; // past day
+    if (new Date(b.date).getTime() === today.getTime() && b.startTime) {
+      const [hours, minutes] = b.startTime.split(':').map(Number);
+      const startDateTime = new Date(today);
+      startDateTime.setHours(hours, minutes, 0, 0);
+      const deadline = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1 hr
+      return now > deadline;
+    }
+    return false;
+  };
 
   const upcoming = (bookings || []).filter(
-    (b) => b.status === 'active' && new Date(b.date) >= today
+    (b) => b.status === 'active' && new Date(b.date) >= today && !isExpired(b)
   );
+  
   const past = (bookings || []).filter(
-    (b) => b.status !== 'active' || new Date(b.date) < today
+    (b) => {
+      if (b.status === 'cancelled') return false; // Handled separately
+      if (b.status === 'completed' || b.status === 'checked-in' || b.status === 'no-show') return true;
+      if (b.status === 'active' && (new Date(b.date) < today || isExpired(b))) return true;
+      return false;
+    }
+  );
+
+  const cancelled = (bookings || []).filter(
+    (b) => b.status === 'cancelled'
   );
 
   const StatusBadge = ({ status }) => {
@@ -149,30 +175,46 @@ const MyBookingsPage = () => {
         ) : (
           <div className="space-y-6">
             {/* Upcoming */}
-            {upcoming.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-280 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">
-                <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
-
-                  <h2 className="font-bold text-gray-900 dark:text-white text-sm">Upcoming ({upcoming.length})</h2>
-                </div>
-                <div className="p-4 space-y-3">
-                  {upcoming.map((b) => <BookingCard key={b._id} booking={b} />)}
-                </div>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-280 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">
+              <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
+                <h2 className="font-bold text-gray-900 dark:text-white text-sm">Upcoming ({upcoming.length})</h2>
               </div>
-            )}
-
-            {/* Past / Cancelled */}
-            {past.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-280 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">
-                <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2 text-gray-400 dark:text-gray-500">
-
-                  <h2 className="font-bold text-gray-700 dark:text-gray-300 text-sm">Past & Cancelled ({past.length})</h2>
-                </div>
-                <div className="p-4 space-y-3">
-                  {past.map((b) => <BookingCard key={b._id} booking={b} />)}
-                </div>
+              <div className="p-4 space-y-3">
+                {upcoming.length > 0 ? (
+                  upcoming.map((b) => <BookingCard key={b._id} booking={b} />)
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No upcoming bookings.</p>
+                )}
               </div>
-            )}
+            </div>
+
+            {/* Past */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-280 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">
+              <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2 text-gray-400 dark:text-gray-500">
+                <h2 className="font-bold text-gray-700 dark:text-gray-300 text-sm">Past Bookings ({past.length})</h2>
+              </div>
+              <div className="p-4 space-y-3">
+                {past.length > 0 ? (
+                  past.map((b) => <BookingCard key={b._id} booking={b} />)
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No past bookings.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Cancelled */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-280 dark:border-gray-700 shadow-sm overflow-hidden transition-colors duration-200">
+              <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2 text-red-400 dark:text-red-500">
+                <h2 className="font-bold text-red-700 dark:text-red-400 text-sm">Cancelled ({cancelled.length})</h2>
+              </div>
+              <div className="p-4 space-y-3">
+                {cancelled.length > 0 ? (
+                  cancelled.map((b) => <BookingCard key={b._id} booking={b} />)
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No cancelled bookings.</p>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
