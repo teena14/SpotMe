@@ -147,7 +147,7 @@ export const googleAuth = async (req, res, next) => {
         email,
         // Set a random secure password for OAuth users since they don't use it
         password: Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10),
-        firstName: given_name || '',
+        firstName: given_name || 'Google User',
         lastName: family_name || '',
         avatarUrl: picture || ''
       });
