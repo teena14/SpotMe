@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -69,15 +70,31 @@ const QRIcon = ({ size = 16, color = 'currentColor' }) => (
   </svg>
 );
 
+const MenuIcon = ({ size = 24, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+);
+
+const CloseIcon = ({ size = 24, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
 // ─── Nav Link ─────────────────────────────────────────────────────────────────
 
-const NavLink = ({ to, icon, label, exact = false }) => {
+const NavLink = ({ to, icon, label, exact = false, onClick }) => {
   const location = useLocation();
   const isActive = exact ? location.pathname === to : location.pathname.startsWith(to);
 
   return (
     <Link
       to={to}
+      onClick={onClick}
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 ${isActive
           ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-400'
           : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-800'
@@ -94,6 +111,7 @@ const NavLink = ({ to, icon, label, exact = false }) => {
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -161,45 +179,97 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Right: user + logout dropdown */}
-          <div className="flex items-center gap-3 relative group">
-            <div className="hidden sm:flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 p-1.5 px-3 rounded-xl transition-colors cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold">
-                {initials}
+          {/* Right: user + logout dropdown (Desktop) & Hamburger (Mobile) */}
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3 relative group">
+              <div className="flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 p-1.5 px-3 rounded-xl transition-colors cursor-pointer">
+                <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold">
+                  {initials}
+                </div>
+                <div className="text-sm leading-tight text-left">
+                  <p className="font-semibold text-gray-900 dark:text-white">
+                    {user?.firstName ? `${user.firstName} ${user.lastName || ''}` : user?.email}
+                  </p>
+                  {isAdmin && (
+                    <p className="text-xs text-primary-500 font-medium">Admin</p>
+                  )}
+                </div>
               </div>
-              <div className="text-sm leading-tight text-left">
-                <p className="font-semibold text-gray-900 dark:text-white">
-                  {user?.firstName ? `${user.firstName} ${user.lastName || ''}` : user?.email}
-                </p>
-                {isAdmin && (
-                  <p className="text-xs text-primary-500 font-medium">Admin</p>
-                )}
+
+              {/* Dropdown Menu */}
+              <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="p-2">
+                  <Link
+                    to="/settings"
+                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg transition-colors"
+                  >
+                    <SettingsIcon size={14} />
+                    Settings
+                  </Link>
+                  <div className="h-px bg-gray-100 dark:bg-gray-800 my-1"></div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                  >
+                    <LogOutIcon size={14} />
+                    Logout
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Dropdown Menu */}
-            <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <div className="p-2">
-                <Link
-                  to="/settings"
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg transition-colors"
-                >
-                  <SettingsIcon size={14} />
-                  Settings
-                </Link>
-                <div className="h-px bg-gray-100 dark:bg-gray-800 my-1"></div>
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                >
-                  <LogOutIcon size={14} />
-                  Logout
-                </button>
-              </div>
+            {/* Mobile menu button */}
+            <div className="md:hidden flex items-center">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none p-2"
+              >
+                {isMobileMenuOpen ? <CloseIcon size={24} /> : <MenuIcon size={24} />}
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 absolute w-full left-0 shadow-lg z-40">
+          <div className="px-4 pt-2 pb-4 space-y-1 flex flex-col">
+            {!isAdmin ? (
+              <>
+                <NavLink to="/" exact label="Dashboard" onClick={() => setIsMobileMenuOpen(false)} />
+                <NavLink to="/seat-map" label="Seat Map" onClick={() => setIsMobileMenuOpen(false)} />
+                <NavLink to="/my-bookings" label="My Bookings" onClick={() => setIsMobileMenuOpen(false)} />
+                <NavLink to="/my-qr" label="My QR" onClick={() => setIsMobileMenuOpen(false)} />
+              </>
+            ) : (
+              <>
+                <NavLink to="/admin" exact label="Admin Dashboard" onClick={() => setIsMobileMenuOpen(false)} />
+                <NavLink to="/admin/users" label="Users" onClick={() => setIsMobileMenuOpen(false)} />
+                <NavLink to="/admin/layouts" label="Layouts" onClick={() => setIsMobileMenuOpen(false)} />
+              </>
+            )}
+            
+            <div className="h-px bg-gray-100 dark:bg-gray-800 my-2"></div>
+            
+            <Link
+              to="/settings"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-primary-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-800 transition-all duration-150"
+            >
+              <SettingsIcon size={16} />
+              Settings
+            </Link>
+            <button
+              onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
+              className="w-full flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30 transition-all duration-150"
+            >
+              <LogOutIcon size={16} />
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
